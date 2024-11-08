@@ -1,0 +1,36 @@
+<html>
+<head>
+<script src="https://tiles.versatiles.org/assets/maplibre-gl/maplibre-gl.js"></script>
+<link href="https://tiles.versatiles.org/assets/maplibre-gl/maplibre-gl.css" rel="stylesheet" />
+
+<script>
+var last_click_pos;
+function init() {    
+   var map = new maplibregl.Map({
+     container: 'map',
+     style: 'https://tiles.versatiles.org/assets/styles/colorful.json'
+   }).addControl(new maplibregl.NavigationControl());
+   
+  map.on("click", async function(e) {
+    console.log("hello, the map has been clicked on position "+ e.lngLat);
+    if (last_click_pos) {
+      console.log("i can now compute a route from " + last_click_pos + " to " + e.lngLat);
+      var url = new URL("https://routing.openstreetmap.de/routed-car/route/v1/driving/" +
+          last_click_pos.lng + "," + last_click_pos.lat + ";" +
+          e.lngLat.lng + "," + e.lngLat.lat);
+      url.searchParams.append('geometries', 'geojson');
+      var response = await fetch (url);
+      var json = await response.json();
+      
+      console.log("this is what the routing server sent me:" + json)
+
+    }
+    last_click_pos = e.lngLat;
+  });
+}
+</script>
+</head>
+<body onload="init()">
+<div id="map" style="width:100%;aspect-ratio:16/9"></div>
+</body>
+</html>
