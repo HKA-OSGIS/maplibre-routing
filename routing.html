@@ -11,6 +11,27 @@ function init() {
      style: 'https://tiles.versatiles.org/assets/styles/colorful.json'
    }).addControl(new maplibregl.NavigationControl());
    
+   map.on('load', () => {
+        map.addSource('route', {
+            'type': 'geojson',
+            'data': {
+                    'type': 'LineString',
+                    'coordinates': [ ]
+                }
+            }
+        );
+        map.addLayer({
+            'id': 'route',
+            'type': 'line',
+            'source': 'route',
+            'layout': {},
+            'paint': {
+                'line-color': '#f00'
+            }
+        });
+    });
+
+  // this does fgfdlgfhdgdfghjkghfkghgdkhdtrkhdfg fgfdgkfghdf fdkgfdhgfg
   map.on("click", async function(e) {
     console.log("hello, the map has been clicked on position "+ e.lngLat);
     if (last_click_pos) {
@@ -21,9 +42,9 @@ function init() {
       url.searchParams.append('geometries', 'geojson');
       var response = await fetch (url);
       var json = await response.json();
-      
-      console.log("this is what the routing server sent me:" + json)
-
+      var geometry = json.routes[0].geometry;
+      console.log("this is what the routing server sent me:" + geometry)
+      map.getSource("route").setData(geometry);
     }
     last_click_pos = e.lngLat;
   });
